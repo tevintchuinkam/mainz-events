@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	iterator := scraper.NewEventLinkIterator()
 	cal := calendar.New()
 
 	defer func() {
@@ -18,19 +17,19 @@ func main() {
 		cal.Save()
 	}()
 
-	for {
-		link, hasMore := iterator.Next()
-		if !hasMore {
-			break
-		}
-		event, err := scraper.ScrapeEvent(link)
-		if err != nil {
-			log.Fatalln(err)
-			continue
-		}
-		if event != nil && event.Title != "" {
+	previews := scraper.GetAllEventPreviewsParallel()
+	for _, preview := range previews {
+
+		if preview.Title != "" {
+			event := calendar.Event{
+				Title:       preview.Title,
+				Start:       preview.StartTime,
+				End:         preview.EndTime,
+				Location:    preview.Location,
+				Description: preview.Link,
+			}
+			cal.AddEvent(event)
 			fmt.Println("added event", event)
-			cal.AddEvent(*event)
 		}
 	}
 }
