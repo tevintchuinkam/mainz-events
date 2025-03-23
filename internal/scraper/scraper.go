@@ -369,7 +369,7 @@ func GetAllEventPreviewsParallel() []EventPreview {
 	var allPreviews []EventPreview
 	currentPage := 1
 	hasMore := true
-	batchSize := 10
+	batchSize := 30
 
 	for hasMore {
 		var wg sync.WaitGroup
@@ -430,19 +430,20 @@ func GetAllEventPreviewsParallel() []EventPreview {
 					// Extract start time
 					if startDateAttr, exists := s.Find("meta[itemprop='startDate']").Attr("content"); exists {
 						startTime, err := time.Parse("2006-01-02T15:04:05-0700", startDateAttr)
-						if err == nil {
-							log.Fatalln("start time", startTime)
-							preview.StartTime = startTime
+						if err != nil {
+							log.Fatalln("start time", startTime, "error", err, "startDateAttr", startDateAttr)
+
 						}
+						preview.StartTime = startTime
 					}
 
 					// Extract end time
 					if endDateAttr, exists := s.Find("meta[itemprop='endDate']").Attr("content"); exists {
 						endTime, err := time.Parse("2006-01-02T15:04:05-0700", endDateAttr)
-						if err == nil {
-							log.Fatalln("end time", endTime)
-							preview.EndTime = endTime
+						if err != nil {
+							log.Fatalln("end time", endTime, "error", err, "endDateAttr", endDateAttr)
 						}
+						preview.EndTime = endTime
 					}
 
 					pagePreviews = append(pagePreviews, preview)
